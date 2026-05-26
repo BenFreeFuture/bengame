@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>名校缘分·悬念硬币 | QS世界名校库</title>
+    <style>
+        * {
+            user-select: none;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: transparent !important;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', 'Poppins', 'Roboto', system-ui, -apple-system, 'Inter', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .game-container {
+            width: 350px;
+            height: 280px;
+            background: #F6D3A1;
+            background-image: radial-gradient(circle at 10% 20%, rgba(194,15,8,0.08) 2%, transparent 2.5%);
+            background-size: 14px 14px;
+            border-radius: 28px;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25), inset 0 1px 2px rgba(255,245,210,0.6);
+            position: relative;
+            overflow-y: auto;
+            overflow-x: hidden;
+            border: 1px solid rgba(194,15,8,0.35);
+        }
+
+        .game-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        .game-container::-webkit-scrollbar-track {
+            background: #e2c28b;
+            border-radius: 10px;
+        }
+        .game-container::-webkit-scrollbar-thumb {
+            background: #C20F08;
+            border-radius: 10px;
+        }
+
+        .game-inner {
+            padding: 6px 10px 8px 10px;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .stats-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(30, 20, 15, 0.3);
+            backdrop-filter: blur(3px);
+            border-radius: 40px;
+            padding: 2px 8px;
+            font-weight: bold;
+            gap: 5px;
+            flex-shrink: 0;
+        }
+
+        .stat-box {
+            background: #2d2b26;
+            padding: 2px 6px;
+            border-radius: 24px;
+            color: #F6D3A1;
+            font-size: 0.6rem;
+            display: flex;
+            align-items: baseline;
+            gap: 3px;
+        }
+
+        .stat-number {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #C20F08;
+        }
+
+        /* 尝试次数显示（左上角） */
+        .attempt-count {
+            background: #C20F08;
+            padding: 2px 8px;
+            border-radius: 24px;
+            color: #F6D3A1;
+            font-size: 0.65rem;
+            font-weight: bold;
+            display: flex;
+            align-items: baseline;
+            gap: 3px;
+            box-shadow: 0 1px 2px black;
+        }
+        .attempt-count span {
+            font-size: 1rem;
+            font-weight: 800;
+            color: #F6D3A1;
+        }
+
+        .reset-stat {
+            background: #C20F08;
+            border: none;
+            color: #F6D3A1;
+            border-radius: 30px;
+            font-size: 0.55rem;
+            padding: 2px 7px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .reset-stat:active {
+            transform: scale(0.96);
+        }
+
+        .admission-message-area {
+            width: 250px;
+            margin: 4px auto 0 auto;
+            text-align: center;
+            background: rgba(194,15,8,0.15);
+            border-radius: 40px;
+            padding: 5px 8px;
+            backdrop-filter: blur(2px);
+            flex-shrink: 0;
+        }
+
+        .admission-text {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: #C20F08;
+            letter-spacing: 0.5px;
+            word-break: keep-all;
+            white-space: nowrap;
+            overflow-x: auto;
+            max-width: 100%;
+            display: inline-block;
+        }
+        
+        .admission-text::-webkit-scrollbar {
+            display: none;
+        }
+
+        .coins-row {
+            display: flex;
+            justify-content: space-evenly;
+            margin: 4px 0 2px;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .coin {
+            width: 52px;
+            height: 52px;
+            background: radial-gradient(circle at 35% 35%, #ffe2b5, #e2b87a);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 5px 8px rgba(0,0,0,0.3), inset 0 -2px 0 rgba(0,0,0,0.1);
+            font-size: 1.4rem;
+            color: #4a2a0e;
+        }
+
+        .coin span {
+            font-size: 0.5rem;
+            background: rgba(0,0,0,0.5);
+            color: #F6D3A1;
+            padding: 1px 3px;
+            border-radius: 20px;
+            margin-top: 2px;
+        }
+
+        .coin-flip {
+            animation: flipPop 0.22s ease-out;
+        }
+
+        @keyframes flipPop {
+            0% { transform: scale(0.8) rotateY(0deg); opacity: 0.6;}
+            100% { transform: scale(1) rotateY(0deg);}
+        }
+
+        .action-btn {
+            background: #C20F08;
+            border: none;
+            font-size: 1rem;
+            font-weight: bold;
+            padding: 4px 0;
+            border-radius: 40px;
+            color: #F6D3A1;
+            box-shadow: 0 3px 0 #7a0a05;
+            cursor: pointer;
+            margin: 2px 0;
+            flex-shrink: 0;
+        }
+
+        .action-btn:active {
+            transform: translateY(2px);
+        }
+
+        .action-btn.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            transform: none;
+        }
+
+        .destiny-message {
+            background: #2d241c;
+            border-radius: 24px;
+            padding: 3px 8px;
+            font-size: 0.55rem;
+            text-align: center;
+            color: #F6D3A1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .last-destiny {
+            background: #C20F08;
+            padding: 1px 6px;
+            border-radius: 30px;
+            font-size: 0.55rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 140px;
+        }
+
+        .confetti-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .final-rankings {
+            margin-top: 8px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 16px;
+            padding: 6px 8px;
+            border-top: 1px solid #C20F08;
+            flex-shrink: 0;
+        }
+
+        .rank-title {
+            font-size: 0.65rem;
+            font-weight: bold;
+            color: #C20F08;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .rank-two-col {
+            display: flex;
+            gap: 8px;
+            justify-content: space-between;
+        }
+
+        .rank-col {
+            flex: 1;
+            background: rgba(45,36,28,0.1);
+            border-radius: 12px;
+            padding: 4px 6px;
+        }
+
+        .rank-col h5 {
+            font-size: 0.6rem;
+            color: #7a2a1a;
+            text-align: center;
+            margin-bottom: 4px;
+        }
+
+        .rank-item {
+            font-size: 0.58rem;
+            padding: 3px 2px;
+            border-bottom: 1px solid rgba(194,15,8,0.2);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .rank-num {
+            background: #C20F08;
+            color: #F6D3A1;
+            border-radius: 20px;
+            padding: 0 5px;
+            font-size: 0.55rem;
+            font-weight: bold;
+            min-width: 28px;
+            text-align: center;
+        }
+
+        .rank-school {
+            flex: 1;
+            white-space: nowrap;
+            overflow-x: hidden;
+            text-overflow: ellipsis;
+            font-size: 0.6rem;
+        }
+
+        .eval-small-btn {
+            background: linear-gradient(95deg, #C20F08, #e6391a);
+            border: none;
+            width: 100%;
+            padding: 5px;
+            margin-top: 8px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 0.7rem;
+            color: #F6D3A1;
+            cursor: pointer;
+            box-shadow: 0 0 6px rgba(194,15,8,0.6);
+            transition: 0.1s;
+        }
+
+        .eval-small-btn:active {
+            transform: scale(0.98);
+        }
+
+        .eval-small-btn.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .tiny-tip {
+            font-size: 6px;
+            text-align: right;
+            color: #9e6f3e;
+            margin-top: 2px;
+        }
+
+        /* 弹窗样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(3px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.2s;
+        }
+        .modal-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .consult-card {
+            width: 340px;
+            max-height: 90vh;
+            overflow-y: auto;
+            background: #F6D3A1;
+            border-radius: 28px;
+            padding: 18px;
+            border: 1px solid #C20F08;
+            text-align: center;
+        }
+        .rainbow-breathing {
+            font-size: 0.95rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            animation: rainbowGlow 2.5s ease-in-out infinite;
+            text-shadow: 0 0 3px rgba(0,0,0,0.2);
+        }
+        @keyframes rainbowGlow {
+            0% { color: #ff0000; text-shadow: 0 0 2px #ff0000; }
+            14% { color: #ff7700; text-shadow: 0 0 3px #ff7700; }
+            28% { color: #ffff00; text-shadow: 0 0 3px #ffff00; }
+            42% { color: #00ff00; text-shadow: 0 0 3px #00ff00; }
+            57% { color: #0000ff; text-shadow: 0 0 3px #0000ff; }
+            71% { color: #4b0082; text-shadow: 0 0 3px #4b0082; }
+            85% { color: #9400d3; text-shadow: 0 0 3px #9400d3; }
+            100% { color: #ff0000; text-shadow: 0 0 2px #ff0000; }
+        }
+        .input-group {
+            margin: 10px 0;
+            text-align: left;
+        }
+        .input-group label {
+            font-weight: 700;
+            color: #7a2a1a;
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.75rem;
+        }
+        .phone-input {
+            width: 100%;
+            padding: 8px;
+            border-radius: 60px;
+            border: 2px solid #e0bc84;
+            outline: none;
+            font-size: 0.8rem;
+            background: white;
+        }
+        .phone-input:focus {
+            border-color: #C20F08;
+        }
+        .phone-input.disabled-input {
+            background: #f0e0c0;
+            color: #999;
+            border-color: #ccc;
+        }
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-top: 5px;
+        }
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: normal;
+            font-size: 0.75rem;
+            color: #4a2e12;
+            cursor: pointer;
+        }
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 5px;
+        }
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: normal;
+            font-size: 0.75rem;
+            color: #4a2e12;
+            cursor: pointer;
+            background: rgba(194,15,8,0.08);
+            padding: 4px 10px;
+            border-radius: 30px;
+            transition: all 0.2s;
+        }
+        .checkbox-group label:hover {
+            background: rgba(194,15,8,0.2);
+        }
+        .checkbox-group input {
+            margin: 0;
+            width: 14px;
+            height: 14px;
+            cursor: pointer;
+            accent-color: #C20F08;
+        }
+        .btn-group-reverse {
+            display: flex;
+            gap: 12px;
+            margin-top: 15px;
+            flex-direction: row-reverse;
+        }
+        .submit-btn-large {
+            background: linear-gradient(95deg, #C20F08, #e6391a);
+            flex: 3;
+            padding: 10px 0;
+            border-radius: 60px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: #F6D3A1;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 0 10px rgba(194,15,8,0.8), 0 4px 8px rgba(0,0,0,0.2);
+            transition: 0.1s;
+            letter-spacing: 1px;
+        }
+        .submit-btn-large:active {
+            transform: scale(0.97);
+        }
+        .submit-btn-large.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+            transform: none;
+        }
+        .close-modal-small {
+            background: transparent;
+            border: 1.5px solid #C20F08;
+            border-radius: 60px;
+            padding: 5px 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: #C20F08;
+            flex: 1;
+            transition: 0.1s;
+        }
+        .close-modal-small:active {
+            transform: scale(0.96);
+            background: rgba(194,15,8,0.1);
+        }
+        .info-msg {
+            background: #2d241c;
+            color: #F6D3A1;
+            padding: 8px;
+            border-radius: 16px;
+            font-size: 0.7rem;
+            margin-top: 10px;
+            text-align: center;
+        }
+        .info-msg.warning {
+            background: #c20f08;
+            color: #F6D3A1;
+        }
+    </style>
+</head>
+<body>
+<div class="game-container" id="gameContainer">
+    <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
+    <div class="game-inner" id="gameInner">
+        <div class="stats-area">
+            <div class="stat-box">🏆 胜 <span class="stat-number" id="winCount">0</span></div>
+            <div class="stat-box">🎲 总 <span class="stat-number" id="totalAttempts">0</span></div>
+            <div class="attempt-count">📋 尝试 <span id="attemptCounter">0</span>/<span id="maxAttempts">3</span></div>
+            <button class="reset-stat" id="resetStatsBtn">重置</button>
+        </div>
+        
+        <div class="admission-message-area">
+            <div class="admission-text" id="admissionMsg">✨ 点击试试手气，开启名校之旅 ✨</div>
+        </div>
+        
+        <div class="coins-row" id="coinsRow">
+            <div class="coin" id="coin1">❓<span>#1</span></div>
+            <div class="coin" id="coin2">❓<span>#2</span></div>
+            <div class="coin" id="coin3">❓<span>#3</span></div>
+            <div class="coin" id="coin4">❓<span>#4</span></div>
+        </div>
+        <button class="action-btn" id="tossBtn">✨ 试试手气 ✨</button>
+        <div class="destiny-message">
+            <span>🎓 QS世界名校库</span>
+            <div class="last-destiny" id="lastWinMsg">✨ 娱乐一下，试试手气 ✨</div>
+        </div>
+        <div class="tiny-tip">⭐ 前三反尾正 → 哈佛录取！院校不会重复出现</div>
+        <div id="finalRankingsContainer" style="display: none;"></div>
+    </div>
+</div>
+
+<div id="consultModal" class="modal-overlay">
+    <div class="consult-card">
+        <div class="rainbow-breathing">🎓 自由未来升学帮你提高名校录取机会 🎓</div>
+        
+        <div class="input-group">
+            <label>📞 联系电话</label>
+            <input type="tel" id="consultPhone" class="phone-input" placeholder="手机号">
+        </div>
+        
+        <div class="input-group">
+            <label>🎓 目标学历</label>
+            <div class="radio-group" id="degreeGroup">
+                <label><input type="radio" name="degree" value="本科" checked> 本科</label>
+                <label><input type="radio" name="degree" value="硕士"> 硕士</label>
+                <label><input type="radio" name="degree" value="博士"> 博士</label>
+            </div>
+        </div>
+        
+        <div class="input-group">
+            <label>🌍 意向国家（可多选）</label>
+            <div class="checkbox-group" id="countryGroup">
+                <label><input type="checkbox" name="country" value="美国"> 🇺🇸 美国</label>
+                <label><input type="checkbox" name="country" value="英国"> 🇬🇧 英国</label>
+                <label><input type="checkbox" name="country" value="中国香港"> 🇭🇰 中国香港</label>
+                <label><input type="checkbox" name="country" value="澳大利亚"> 🇦🇺 澳大利亚</label>
+                <label><input type="checkbox" name="country" value="新加坡"> 🇸🇬 新加坡</label>
+                <label><input type="checkbox" name="country" value="其他"> 🌍 其他</label>
+            </div>
+        </div>
+        
+        <div id="submitInfoMsg" class="info-msg">
+            ✨ 您还可以提交 <span id="remainingCount">3</span> 次咨询
+        </div>
+        
+        <div class="btn-group-reverse">
+            <button id="submitConsultBtn" class="submit-btn-large">✨ 立刻咨询 ✨</button>
+            <button id="closeModalBtn" class="close-modal-small">暂不需要</button>
+        </div>
+        <div id="submitFeedback" style="font-size:0.6rem; margin-top:8px;"></div>
+        <div style="font-size:0.6rem; margin-top:5px;">⭐ 想提升录取名校几率，找我们聊聊吧！ ⭐</div>
+    </div>
+</div>
+
+<script>
+    // ================= 名校库: QS前130 (剔除中国内地院校) =================
+    const countryEmoji = {
+        "US": "🇺🇸", "UK": "🇬🇧", "CH": "🇨🇭", "SG": "🇸🇬", "HK": "🇭🇰", "AU": "🇦🇺", "CA": "🇨🇦",
+        "DE": "🇩🇪", "FR": "🇫🇷", "NL": "🇳🇱", "KR": "🇰🇷", "JP": "🇯🇵", "SE": "🇸🇪", "DK": "🇩🇰",
+        "FI": "🇫🇮", "NO": "🇳🇴", "BE": "🇧🇪", "AT": "🇦🇹", "ES": "🇪🇸", "IT": "🇮🇹", "NZ": "🇳🇿",
+        "BR": "🇧🇷", "MX": "🇲🇽", "ZA": "🇿🇦", "IL": "🇮🇱", "TR": "🇹🇷", "PL": "🇵🇱", "CZ": "🇨🇿",
+        "RU": "🇷🇺", "MY": "🇲🇾", "TH": "🇹🇭", "ID": "🇮🇩", "MO": "🇲🇴", "IN": "🇮🇳", "CL": "🇨🇱", "PT": "🇵🇹", "GR": "🇬🇷"
+    };
+    
+    const qsSchoolsData = [
+        { rank: 1, name: "麻省理工学院", country: "US" }, { rank: 2, name: "剑桥大学", country: "UK" }, { rank: 3, name: "牛津大学", country: "UK" },
+        { rank: 4, name: "哈佛大学", country: "US" }, { rank: 5, name: "斯坦福大学", country: "US" }, { rank: 6, name: "帝国理工学院", country: "UK" },
+        { rank: 7, name: "苏黎世联邦理工学院", country: "CH" }, { rank: 8, name: "新加坡国立大学", country: "SG" }, { rank: 9, name: "伦敦大学学院", country: "UK" },
+        { rank: 10, name: "加州大学伯克利分校", country: "US" }, { rank: 11, name: "芝加哥大学", country: "US" }, { rank: 12, name: "宾夕法尼亚大学", country: "US" },
+        { rank: 13, name: "康奈尔大学", country: "US" }, { rank: 14, name: "墨尔本大学", country: "AU" }, { rank: 15, name: "加州理工学院", country: "US" },
+        { rank: 16, name: "耶鲁大学", country: "US" }, { rank: 17, name: "普林斯顿大学", country: "US" }, { rank: 18, name: "新南威尔士大学", country: "AU" },
+        { rank: 19, name: "悉尼大学", country: "AU" }, { rank: 20, name: "多伦多大学", country: "CA" }, { rank: 21, name: "爱丁堡大学", country: "UK" },
+        { rank: 22, name: "哥伦比亚大学", country: "US" }, { rank: 23, name: "巴黎文理研究大学", country: "FR" }, { rank: 24, name: "慕尼黑工业大学", country: "DE" },
+        { rank: 25, name: "香港大学", country: "HK" }, { rank: 26, name: "香港中文大学", country: "HK" }, { rank: 27, name: "香港科技大学", country: "HK" },
+        { rank: 28, name: "伦敦国王学院", country: "UK" }, { rank: 29, name: "首尔国立大学", country: "KR" }, { rank: 30, name: "京都大学", country: "JP" },
+        { rank: 31, name: "东京大学", country: "JP" }, { rank: 32, name: "代尔夫特理工大学", country: "NL" }, { rank: 33, name: "西北大学", country: "US" },
+        { rank: 34, name: "密歇根大学安娜堡", country: "US" }, { rank: 35, name: "杜克大学", country: "US" }, { rank: 36, name: "卡内基梅隆大学", country: "US" },
+        { rank: 37, name: "约翰霍普金斯大学", country: "US" }, { rank: 38, name: "英属哥伦比亚大学", country: "CA" }, { rank: 39, name: "曼彻斯特大学", country: "UK" },
+        { rank: 40, name: "慕尼黑大学", country: "DE" }, { rank: 41, name: "麦吉尔大学", country: "CA" }, { rank: 42, name: "布里斯托大学", country: "UK" },
+        { rank: 43, name: "伊利诺伊大学香槟分校", country: "US" }, { rank: 44, name: "马来亚大学", country: "MY" }, { rank: 45, name: "南洋理工大学", country: "SG" },
+        { rank: 46, name: "巴黎萨克雷大学", country: "FR" }, { rank: 47, name: "鲁汶大学", country: "BE" }, { rank: 48, name: "澳洲国立大学", country: "AU" },
+        { rank: 49, name: "布朗大学", country: "US" }, { rank: 50, name: "华威大学", country: "UK" }, { rank: 51, name: "莫斯科国立大学", country: "RU" },
+        { rank: 52, name: "柏林自由大学", country: "DE" }, { rank: 53, name: "格拉斯哥大学", country: "UK" }, { rank: 54, name: "莱顿大学", country: "NL" },
+        { rank: 55, name: "乌得勒支大学", country: "NL" }, { rank: 56, name: "乌普萨拉大学", country: "SE" }, { rank: 57, name: "哥本哈根大学", country: "DK" },
+        { rank: 58, name: "奥克兰大学", country: "NZ" }, { rank: 59, name: "日内瓦大学", country: "CH" }, { rank: 60, name: "伯明翰大学", country: "UK" },
+        { rank: 61, name: "隆德大学", country: "SE" }, { rank: 62, name: "谢菲尔德大学", country: "UK" }, { rank: 63, name: "诺丁汉大学", country: "UK" },
+        { rank: 64, name: "赫尔辛基大学", country: "FI" }, { rank: 65, name: "南安普顿大学", country: "UK" }, { rank: 66, name: "利兹大学", country: "UK" },
+        { rank: 67, name: "奥胡斯大学", country: "DK" }, { rank: 68, name: "西澳大学", country: "AU" }, { rank: 69, name: "阿德莱德大学", country: "AU" },
+        { rank: 70, name: "波士顿大学", country: "US" }, { rank: 71, name: "加州大学戴维斯分校", country: "US" }, { rank: 72, name: "圣路易斯华盛顿大学", country: "US" },
+        { rank: 73, name: "加州大学圣迭戈分校", country: "US" }, { rank: 74, name: "洛桑联邦理工学院", country: "CH" }, { rank: 75, name: "柏林洪堡大学", country: "DE" },
+        { rank: 76, name: "香港城市大学", country: "HK" }, { rank: 77, name: "香港理工大学", country: "HK" }, { rank: 78, name: "澳门大学", country: "MO" },
+        { rank: 79, name: "蒙特利尔大学", country: "CA" }, { rank: 80, name: "阿尔伯塔大学", country: "CA" }, { rank: 81, name: "奥塔哥大学", country: "NZ" },
+        { rank: 82, name: "圣保罗大学", country: "BR" }, { rank: 83, name: "智利大学", country: "CL" }, { rank: 84, name: "墨西哥国立自治大学", country: "MX" },
+        { rank: 85, name: "维也纳大学", country: "AT" }, { rank: 86, name: "卑尔根大学", country: "NO" }, { rank: 87, name: "奥斯陆大学", country: "NO" },
+        { rank: 88, name: "布拉格查理大学", country: "CZ" }, { rank: 89, name: "华沙大学", country: "PL" }, { rank: 90, name: "伊斯坦布尔大学", country: "TR" },
+        { rank: 91, name: "开普敦大学", country: "ZA" }, { rank: 92, name: "特拉维夫大学", country: "IL" }, { rank: 93, name: "希伯来大学", country: "IL" },
+        { rank: 94, name: "印度理工学院孟买", country: "IN" }, { rank: 95, name: "印度科学学院", country: "IN" }, { rank: 96, name: "延世大学", country: "KR" },
+        { rank: 97, name: "高丽大学", country: "KR" }, { rank: 98, name: "马来西亚博特拉大学", country: "MY" }, { rank: 99, name: "马来西亚理科大学", country: "MY" },
+        { rank: 100, name: "马来西亚国立大学", country: "MY" }, { rank: 101, name: "乔治亚理工学院", country: "US" }, { rank: 102, name: "普渡大学", country: "US" },
+        { rank: 103, name: "俄亥俄州立大学", country: "US" }, { rank: 104, name: "宾夕法尼亚州立大学", country: "US" }, { rank: 105, name: "佛罗里达大学", country: "US" },
+        { rank: 106, name: "洛桑大学", country: "CH" }, { rank: 107, name: "巴塞罗那大学", country: "ES" }, { rank: 108, name: "马德里自治大学", country: "ES" },
+        { rank: 109, name: "博洛尼亚大学", country: "IT" }, { rank: 110, name: "罗马大学", country: "IT" }, { rank: 111, name: "阿姆斯特丹大学", country: "NL" },
+        { rank: 112, name: "格罗宁根大学", country: "NL" }, { rank: 113, name: "鹿特丹伊拉斯姆斯大学", country: "NL" }, { rank: 114, name: "根特大学", country: "BE" },
+        { rank: 115, name: "布鲁塞尔自由大学", country: "BE" }, { rank: 116, name: "维也纳工业大学", country: "AT" }, { rank: 117, name: "因斯布鲁克大学", country: "AT" },
+        { rank: 118, name: "萨尔茨堡大学", country: "AT" }, { rank: 119, name: "格拉茨大学", country: "AT" }, { rank: 120, name: "里斯本大学", country: "PT" },
+        { rank: 121, name: "波尔图大学", country: "PT" }, { rank: 122, name: "科英布拉大学", country: "PT" }, { rank: 123, name: "雅典大学", country: "GR" },
+        { rank: 124, name: "塞萨洛尼基大学", country: "GR" }, { rank: 125, name: "伊斯坦布尔技术大学", country: "TR" }, { rank: 126, name: "中东技术大学", country: "TR" },
+        { rank: 127, name: "海峡大学", country: "TR" }, { rank: 128, name: "东京工业大学", country: "JP" }, { rank: 129, name: "大阪大学", country: "JP" },
+        { rank: 130, name: "东北大学", country: "JP" }
+    ];
+    
+    const FULL_SCHOOLS_POOL = qsSchoolsData.filter(s => s.country !== "CN");
+    
+    function getSchoolWithEmoji(school) {
+        const emoji = countryEmoji[school.country] || "🌍";
+        return `${emoji} ${school.name}`;
+    }
+    
+    // 无重复抽取核心
+    let currentAvailableSchools = [];
+    let harvardAlreadyDrawn = false;
+    let pageStartTime = Date.now();
+    
+    // ================= 提交次数限制（最多3次） =================
+    const MAX_SUBMIT_COUNT = 3;
+    
+    function getSubmitCount() {
+        const count = localStorage.getItem('consult_submit_count');
+        return count ? parseInt(count) : 0;
+    }
+    
+    function getRemainingCount() {
+        const submitted = getSubmitCount();
+        return Math.max(0, MAX_SUBMIT_COUNT - submitted);
+    }
+    
+    function canSubmit() {
+        return getRemainingCount() > 0;
+    }
+    
+    function incrementSubmitCount() {
+        const current = getSubmitCount();
+        localStorage.setItem('consult_submit_count', current + 1);
+        updateAttemptDisplay();
+    }
+    
+    // 更新左上角尝试次数显示
+    function updateAttemptDisplay() {
+        const current = getSubmitCount();
+        const maxSpan = document.getElementById('maxAttempts');
+        const currentSpan = document.getElementById('attemptCounter');
+        if (currentSpan) currentSpan.innerText = current;
+        if (maxSpan) maxSpan.innerText = MAX_SUBMIT_COUNT;
+    }
+    
+    function initAvailableSchools() {
+        currentAvailableSchools = FULL_SCHOOLS_POOL.map(s => ({
+            rank: s.rank,
+            name: s.name,
+            country: s.country,
+            fullNameWithEmoji: getSchoolWithEmoji(s)
+        }));
+        harvardAlreadyDrawn = false;
+    }
+    
+    function removeSchoolFromPool(schoolName) {
+        const index = currentAvailableSchools.findIndex(s => s.name === schoolName);
+        if (index !== -1) currentAvailableSchools.splice(index, 1);
+    }
+    
+    function getSchoolByHeadsCountNoRepeat(headsCount) {
+        if (currentAvailableSchools.length === 0) return { name: "🏫 备选名校", rank: 999 };
+        let filtered = [];
+        if (headsCount === 0) filtered = currentAvailableSchools.filter(s => s.rank >= 80 && s.rank <= 130);
+        else if (headsCount === 1) filtered = currentAvailableSchools.filter(s => s.rank >= 50 && s.rank <= 79);
+        else if (headsCount === 2) filtered = currentAvailableSchools.filter(s => s.rank >= 20 && s.rank <= 49);
+        else if (headsCount === 3) filtered = currentAvailableSchools.filter(s => s.rank >= 5 && s.rank <= 19);
+        else filtered = currentAvailableSchools.filter(s => s.rank >= 1 && s.rank <= 4);
+        if (filtered.length === 0) filtered = [...currentAvailableSchools];
+        const randomIndex = Math.floor(Math.random() * filtered.length);
+        const selected = filtered[randomIndex];
+        removeSchoolFromPool(selected.name);
+        return { name: selected.fullNameWithEmoji, rank: selected.rank, rawName: selected.name };
+    }
+    
+    function getHarvardSchool() {
+        if (harvardAlreadyDrawn) {
+            const topSchools = currentAvailableSchools.filter(s => s.rank >= 1 && s.rank <= 4 && s.name !== "哈佛大学");
+            if (topSchools.length === 0) {
+                const fallback = currentAvailableSchools.length > 0 ? currentAvailableSchools : FULL_SCHOOLS_POOL;
+                const randomSchool = fallback[Math.floor(Math.random() * fallback.length)];
+                const nameWithEmoji = getSchoolWithEmoji(randomSchool);
+                if (currentAvailableSchools.length > 0) removeSchoolFromPool(randomSchool.name);
+                return { name: nameWithEmoji, rank: randomSchool.rank, rawName: randomSchool.name };
+            }
+            const selected = topSchools[Math.floor(Math.random() * topSchools.length)];
+            removeSchoolFromPool(selected.name);
+            return { name: selected.fullNameWithEmoji, rank: selected.rank, rawName: selected.name };
+        }
+        harvardAlreadyDrawn = true;
+        removeSchoolFromPool("哈佛大学");
+        return { name: "🇺🇸 哈佛大学", rank: 4, rawName: "哈佛大学" };
+    }
+
+    // ================= 游戏核心 =================
+    let isAnimating = false;
+    let currentResults = [null, null, null, null];
+    let totalAttempts = 0;
+    let winCount = 0;
+    let roundResults = [];
+    let gameActive = true;
+    const MAX_ROUNDS = 10;
+
+    const coinEls = [document.getElementById('coin1'), document.getElementById('coin2'), document.getElementById('coin3'), document.getElementById('coin4')];
+    const tossBtn = document.getElementById('tossBtn');
+    const winCountSpan = document.getElementById('winCount');
+    const totalAttemptsSpan = document.getElementById('totalAttempts');
+    const resetStatsBtn = document.getElementById('resetStatsBtn');
+    const lastWinMsgSpan = document.getElementById('lastWinMsg');
+    const admissionMsgDiv = document.getElementById('admissionMsg');
+    const gameContainerDiv = document.getElementById('gameContainer');
+    const finalRankingsContainer = document.getElementById('finalRankingsContainer');
+    const canvas = document.getElementById('confettiCanvas');
+    let ctx = canvas.getContext('2d');
+    let activeConfetti = false, particleList = [], particleAnim = null;
+
+    function resizeCanvas() { const rect = gameContainerDiv.getBoundingClientRect(); canvas.width = rect.width; canvas.height = rect.height; }
+    function updateStatsUI() { winCountSpan.innerText = winCount; totalAttemptsSpan.innerText = totalAttempts; localStorage.setItem('coin_total', totalAttempts); localStorage.setItem('coin_win', winCount); }
+    function resetStatistics() { totalAttempts = 0; winCount = 0; updateStatsUI(); lastWinMsgSpan.innerHTML = '✨ 娱乐一下，试试手气 ✨'; admissionMsgDiv.innerHTML = '✨ 点击试试手气，开启名校之旅 ✨'; }
+    function resetCoins() { for(let i=0;i<4;i++) { coinEls[i].innerHTML = '❓<span>#'+(i+1)+'</span>'; coinEls[i].style.background = "radial-gradient(circle at 35% 35%, #ffe2b5, #e2b87a)"; } }
+    
+    function burstConfettiRandom() { const count = 5 + Math.floor(Math.random() * 4); for(let i = 0; i < count; i++) { const angle = Math.random() * Math.PI * 2; const speed = 2 + Math.random() * 4; const vx = Math.cos(angle) * speed; const vy = Math.sin(angle) * speed - 1.5; const size = 4 + Math.random() * 6; const x = canvas.width / 2 + (Math.random() - 0.5) * 60; const y = canvas.height / 2 + (Math.random() - 0.5) * 40; const hue = Math.random() * 360; particleList.push({ x: x, y: y, vx: vx, vy: vy, size: size, color: `hsl(${hue}, 85%, 60%)`, life: 1, maxLife: 1, gravity: 0.15, drag: 0.98 }); } if(!particleAnim) animateParticles(); }
+    function startVictoryConfetti() { burstConfettiRandom(); burstConfettiRandom(); }
+    function animateParticles() { if(particleAnim) cancelAnimationFrame(particleAnim); function draw(){ ctx.clearRect(0,0,canvas.width,canvas.height); for(let i=0;i<particleList.length;i++){ let p=particleList[i]; p.x+=p.vx; p.y+=p.vy; p.vy+=p.gravity || 0.2; p.life-=0.02; if(p.life<=0||p.y>canvas.height+50||p.x<-50||p.x>canvas.width+50){particleList.splice(i,1);i--;continue;} ctx.fillStyle=p.color; ctx.fillRect(p.x-p.size/2,p.y-p.size/2,p.size,p.size); } if(particleList.length>0) particleAnim = requestAnimationFrame(draw); else { particleAnim=null; ctx.clearRect(0,0,canvas.width,canvas.height); } } particleAnim = requestAnimationFrame(draw); }
+
+    function renderFinalRankings() {
+        if(roundResults.length !== MAX_ROUNDS) return;
+        const sorted = [...roundResults].sort((a,b) => (a.qsRank || 999) - (b.qsRank || 999));
+        const top5 = sorted.slice(0,5);
+        const bottom5 = sorted.slice(5,10);
+        let html = `<div class="final-rankings"><div class="rank-title">🏆 最终录取院校榜单 (按QS排名，无重复) 🏆</div><div class="rank-two-col"><div class="rank-col"><h5>🏅 排名前1-5</h5>`;
+        top5.forEach((item) => { let rankDisplay = item.qsRank ? `${item.qsRank}` : '?'; html += `<div class="rank-item"><span class="rank-num">${rankDisplay}</span><span class="rank-school">${item.schoolName}</span></div>`; });
+        html += `</div><div class="rank-col"><h5>📌 排名6-10</h5>`;
+        bottom5.forEach((item) => { let rankDisplay = item.qsRank ? `${item.qsRank}` : '?'; html += `<div class="rank-item"><span class="rank-num">${rankDisplay}</span><span class="rank-school">${item.schoolName}</span></div>`; });
+        html += `</div></div><button class="eval-small-btn" id="evalFinalBtn">📊 评估申请院校的可能性 📊</button></div>`;
+        finalRankingsContainer.innerHTML = html;
+        finalRankingsContainer.style.display = 'block';
+        const evalBtn = document.getElementById('evalFinalBtn');
+        if(evalBtn) evalBtn.addEventListener('click', () => showConsultPopup());
+        gameContainerDiv.scrollTop = gameContainerDiv.scrollHeight;
+    }
+
+    function recordResult(schoolName, isHarvard, qsRankNum = null) { roundResults.push({ schoolName, isHarvard, qsRank: qsRankNum }); if(roundResults.length === MAX_ROUNDS) { gameActive = false; tossBtn.classList.add('disabled'); renderFinalRankings(); } }
+    function setAdmissionMessage(msg, isHarvard = false) { admissionMsgDiv.innerHTML = msg; admissionMsgDiv.style.color = isHarvard ? "#C20F08" : "#2d5a2c"; burstConfettiRandom(); }
+
+    async function processWin() {
+        const school = getHarvardSchool();
+        const isHarvardActual = (school.rawName === "哈佛大学");
+        if (isHarvardActual) { winCount++; updateStatsUI(); startVictoryConfetti(); setAdmissionMessage("🎉 恭喜录取 哈佛大学！本科录取率仅5%左右 🎉", true); const toast = document.createElement('div'); toast.innerText = "📚 科普：哈佛大学本科录取几率约5%！"; toast.style.position='fixed'; toast.style.bottom='30%'; toast.style.left='50%'; toast.style.transform='translateX(-50%)'; toast.style.background='#2d241c'; toast.style.color='#F6D3A1'; toast.style.padding='4px 12px'; toast.style.borderRadius='30px'; toast.style.zIndex='999'; toast.style.fontSize='11px'; document.body.appendChild(toast); setTimeout(()=>toast.remove(),1800); } else { setAdmissionMessage(`✨ 恭喜录取 ${school.name} ✨`, false); }
+        recordResult(school.name, isHarvardActual, school.rank);
+    }
+    
+    async function processLose(headsCount) { const school = getSchoolByHeadsCountNoRepeat(headsCount); setAdmissionMessage(`✨ 恭喜录取 ${school.name} ✨`, false); recordResult(school.name, false, school.rank); }
+
+    async function flipCoinSequentially() {
+        if(isAnimating || !gameActive || roundResults.length >= MAX_ROUNDS) return;
+        isAnimating = true; tossBtn.classList.add('disabled'); totalAttempts++; updateStatsUI(); currentResults = [null, null, null, null]; resetCoins();
+        const randomResults = []; for(let i=0;i<4;i++) randomResults.push(Math.random()<0.5 ? 'H' : 'T');
+        for(let idx=0; idx<4; idx++) { const isHeads = randomResults[idx] === 'H'; const coinDiv = coinEls[idx]; coinDiv.classList.add('coin-flip'); coinDiv.innerHTML = isHeads ? `🪙 正<span>#${idx+1}</span>` : `🪙 反<span>#${idx+1}</span>`; coinDiv.style.background = isHeads ? "radial-gradient(circle at 35% 35%, #ffe2a4, #dba53f)" : "radial-gradient(circle at 35% 35%, #b0a07c, #7a633c)"; currentResults[idx] = randomResults[idx]; await new Promise(r => setTimeout(() => { coinDiv.classList.remove('coin-flip'); r(); }, 200)); if(idx !== 3) await new Promise(r => setTimeout(r, 120)); }
+        const headsCount = currentResults.filter(r => r === 'H').length; const isSpecialWin = (currentResults[0]==='T' && currentResults[1]==='T' && currentResults[2]==='T' && currentResults[3]==='H');
+        if(isSpecialWin) await processWin(); else await processLose(headsCount);
+        isAnimating = false; if(roundResults.length < MAX_ROUNDS) tossBtn.classList.remove('disabled'); else tossBtn.classList.add('disabled');
+    }
+
+    // ================= 获取用户IP =================
+    async function getUserIP() {
+        try {
+            const response = await fetch('https://api.ipify.org?format=json');
+            const data = await response.json();
+            return data.ip;
+        } catch(e) {
+            return '无法获取';
+        }
+    }
+
+    // ================= 留咨弹窗 =================
+    const consultModal = document.getElementById('consultModal');
+    const consultPhone = document.getElementById('consultPhone');
+    const submitConsult = document.getElementById('submitConsultBtn');
+    const closeConsult = document.getElementById('closeModalBtn');
+    const feedbackDiv = document.getElementById('submitFeedback');
+    const submitInfoMsg = document.getElementById('submitInfoMsg');
+    const remainingCountSpan = document.getElementById('remainingCount');
+    const degreeRadios = document.querySelectorAll('input[name="degree"]');
+    const countryCheckboxes = document.querySelectorAll('input[name="country"]');
+    
+    // 企业微信机器人 Webhook 地址
+    const webhookUrl = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=140beb5a-b2b5-487e-9502-72676245dba9";
+    
+    function updateRemainingDisplay() {
+        const remaining = getRemainingCount();
+        remainingCountSpan.innerText = remaining;
+        if (remaining === 0) {
+            submitInfoMsg.innerHTML = `⚠️ 您已达到最大提交次数（${MAX_SUBMIT_COUNT}次）<br>如需更多帮助，请联系规划师`;
+            submitInfoMsg.classList.add('warning');
+        } else {
+            submitInfoMsg.innerHTML = `✨ 您还可以提交 <span id="remainingCount">${remaining}</span> 次咨询`;
+            submitInfoMsg.classList.remove('warning');
+        }
+    }
+    
+    function showConsultPopup() { 
+        updateRemainingDisplay();
+        
+        if (!canSubmit()) {
+            submitConsult.classList.add('disabled');
+            consultPhone.disabled = true;
+            consultPhone.classList.add('disabled-input');
+            for(let radio of degreeRadios) radio.disabled = true;
+            for(let cb of countryCheckboxes) cb.disabled = true;
+        } else {
+            submitConsult.classList.remove('disabled');
+            consultPhone.disabled = false;
+            consultPhone.classList.remove('disabled-input');
+            for(let radio of degreeRadios) radio.disabled = false;
+            for(let cb of countryCheckboxes) cb.disabled = false;
+        }
+        consultModal.classList.add('active'); 
+    }
+    
+    function closeModal() { 
+        consultModal.classList.remove('active'); 
+        consultPhone.value = ''; 
+        feedbackDiv.innerHTML = ''; 
+    }
+    
+    async function submitLead() { 
+        if (!canSubmit()) {
+            feedbackDiv.innerHTML = `⚠️ 您已达到最大提交次数（${MAX_SUBMIT_COUNT}次），无法继续提交`;
+            feedbackDiv.style.color = "#b86b2c";
+            return;
+        }
+        
+        let phone = consultPhone.value.trim(); 
+        if(!phone) { feedbackDiv.innerHTML = "❌ 输入电话"; return; } 
+        if(!/^1[0-9]{10}$|^[0-9]{8,14}$/.test(phone)) { feedbackDiv.innerHTML = "📱 有效号码"; return; }
+        
+        let degree = "";
+        for(let radio of degreeRadios) { if(radio.checked) { degree = radio.value; break; } }
+        if(!degree) { feedbackDiv.innerHTML = "🎓 请选择目标学历"; return; }
+        
+        let selectedCountries = [];
+        for(let cb of countryCheckboxes) { if(cb.checked) { selectedCountries.push(cb.value); } }
+        if(selectedCountries.length === 0) { feedbackDiv.innerHTML = "🌍 请至少选择一个意向国家"; return; }
+        const countriesStr = selectedCountries.join("、");
+        
+        const currentSubmitCount = getSubmitCount();
+        const newCount = currentSubmitCount + 1;
+        localStorage.setItem('consult_submit_count', newCount);
+        updateAttemptDisplay();
+        
+        feedbackDiv.innerHTML = "⏳ 提交中...";
+        feedbackDiv.style.color = "#b86b2c";
+        
+        const userIP = await getUserIP();
+        const stayDuration = Math.floor((Date.now() - pageStartTime) / 1000);
+        const stayMinutes = Math.floor(stayDuration / 60);
+        const staySeconds = stayDuration % 60;
+        const stayText = stayMinutes > 0 ? `${stayMinutes}分${staySeconds}秒` : `${staySeconds}秒`;
+        
+        let rankingList = "";
+        const sortedForMsg = [...roundResults].sort((a,b) => (a.qsRank || 999) - (b.qsRank || 999));
+        sortedForMsg.forEach((item, idx) => { rankingList += `${idx+1}. ${item.schoolName}\n`; });
+        
+        const winTimes = roundResults.filter(r => r.isHarvard === true).length;
+        
+        // ========== 企业微信机器人推送 ==========
+        const messageContent = `【名校抛缘游戏·新留资】
+📞 电话：${phone}
+📝 第 ${newCount}/${MAX_SUBMIT_COUNT} 次提交
+🎓 目标学历：${degree}
+🌍 意向国家：${countriesStr}
+🏆 命中哈佛次数：${winTimes} 次
+⏰ 提交时间：${new Date().toLocaleString()}
+🖥️ 用户IP：${userIP}
+⌛ 页面停留时长：${stayText}
+📋 录取院校榜单（共10所，按QS排名）：
+${rankingList}
+💬 留言：咨询可能性`;
+        
+        const robotData = {
+            msgtype: "text",
+            text: {
+                content: messageContent
+            }
+        };
+        
+        fetch(webhookUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(robotData)
+        }).then(response => response.json())
+          .then(data => {
+              if (data.errcode === 0) {
+                  console.log("机器人推送成功");
+              } else {
+                  console.error("机器人推送失败:", data);
+              }
+          })
+          .catch(err => console.error("机器人推送请求失败:", err));
+        
+        // Formspree 推送
+        fetch("https://formspree.io/f/mpqnoakd", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+                phone: phone,
+                submitNumber: newCount,
+                degree: degree,
+                countries: countriesStr,
+                winTimes: winTimes,
+                ip: userIP,
+                stayDuration: stayText,
+                rankingList: rankingList,
+                _subject: `🎓 游戏留咨新线索（第${newCount}次提交）`,
+                name: "抽奖客户",
+                message: "咨询可能性"
+            })
+        }).catch(err => console.error("Formspree 发送失败:", err));
+        
+        // 本地存储备份
+        let existingList = JSON.parse(localStorage.getItem('consult_phone_list') || '[]');
+        existingList.push({ 
+            phone: phone, 
+            submitNumber: newCount,
+            degree: degree, 
+            countries: countriesStr, 
+            winTimes: winTimes, 
+            ip: userIP, 
+            stayDuration: stayText, 
+            rankingList: rankingList, 
+            time: new Date().toISOString() 
+        });
+        localStorage.setItem('consult_phone_list', JSON.stringify(existingList));
+        localStorage.setItem('consult_phone', phone);
+        
+        feedbackDiv.innerHTML = `✅ 第 ${newCount} 次提交成功！规划师将尽快联系您。`;
+        feedbackDiv.style.color = "#2a6b2f";
+        consultPhone.value = '';
+        
+        for(let cb of countryCheckboxes) { cb.checked = false; }
+        if(degreeRadios[0]) degreeRadios[0].checked = true;
+        
+        updateRemainingDisplay();
+        
+        if (!canSubmit()) {
+            submitConsult.classList.add('disabled');
+            consultPhone.disabled = true;
+            consultPhone.classList.add('disabled-input');
+            for(let radio of degreeRadios) radio.disabled = true;
+            for(let cb of countryCheckboxes) cb.disabled = true;
+            feedbackDiv.innerHTML = `✅ 第 ${newCount} 次提交成功！您已完成全部 ${MAX_SUBMIT_COUNT} 次咨询，规划师会尽快联系您。`;
+        }
+        
+        setTimeout(() => {
+            consultModal.classList.remove('active');
+            feedbackDiv.innerHTML = '';
+        }, 2500);
+    }
+    
+    function fullReset() { 
+        resetStatistics(); 
+        initAvailableSchools(); 
+        gameActive = true; 
+        roundResults = []; 
+        finalRankingsContainer.style.display = 'none'; 
+        finalRankingsContainer.innerHTML = ''; 
+        admissionMsgDiv.innerHTML = '✨ 点击试试手气，开启名校之旅 ✨'; 
+        tossBtn.classList.remove('disabled'); 
+        if(isAnimating) return; 
+        resetCoins(); 
+    }
+
+    resetStatsBtn.addEventListener('click', fullReset);
+    tossBtn.addEventListener('click', () => { if(!isAnimating && gameActive && roundResults.length < MAX_ROUNDS) flipCoinSequentially(); });
+    submitConsult.addEventListener('click', submitLead);
+    closeConsult.addEventListener('click', closeModal);
+    window.addEventListener('resize', resizeCanvas);
+    
+    function loadStats() { 
+        let t = localStorage.getItem('coin_total'), w = localStorage.getItem('coin_win'); 
+        totalAttempts = t?parseInt(t):0; 
+        winCount = w?parseInt(w):0; 
+        updateStatsUI(); 
+    }
+    
+    loadStats();
+    resizeCanvas();
+    resetCoins();
+    gameActive = true;
+    roundResults = [];
+    finalRankingsContainer.style.display = 'none';
+    initAvailableSchools();
+    pageStartTime = Date.now();
+    updateRemainingDisplay();
+    updateAttemptDisplay();
+</script>
+</body>
+</html>
