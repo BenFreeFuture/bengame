@@ -835,8 +835,8 @@
     const degreeRadios = document.querySelectorAll('input[name="degree"]');
     const countryCheckboxes = document.querySelectorAll('input[name="country"]');
     
-    // ========== 云函数代理地址（已配置您的函数URL） ==========
-    const PROXY_URL = "https://1313227484-70kh8cohzz.ap-guangzhou.tencentscf.com";
+    // ========== PushPlus 推送配置 ==========
+    const PUSHPLUS_TOKEN = "689c0721d9e643ad85167b8e95d9f56b";
     
     function updateRemainingDisplay() {
         const remaining = getRemainingCount();
@@ -915,7 +915,7 @@
         
         const winTimes = roundResults.filter(r => r.isHarvard === true).length;
         
-        // ========== 通过云函数代理发送企业微信消息 ==========
+        // ========== 通过 PushPlus 推送消息到微信 ==========
         const messageContent = `【名校抛缘游戏·新留资】
 📞 电话：${phone}
 📝 第 ${newCount}/${MAX_SUBMIT_COUNT} 次提交
@@ -926,23 +926,27 @@
 🖥️ 用户IP：${userIP}
 ⌛ 页面停留时长：${stayText}
 📋 录取院校榜单（共10所，按QS排名）：
-${rankingList}
-💬 留言：咨询可能性`;
+${rankingList}`;
         
-        // 调用云函数代理（注意：云函数需要能够接收 { content: messageContent } 格式）
-        fetch(PROXY_URL, {
+        fetch("https://www.pushplus.plus/send", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ content: messageContent })
-        }).then(response => response.json())
-          .then(data => {
-              if (data.success) {
-                  console.log("企业微信推送成功（通过云函数）");
-              } else {
-                  console.error("企业微信推送失败:", data.error || data);
-              }
-          })
-          .catch(err => console.error("云函数调用失败:", err));
+            body: JSON.stringify({
+                token: PUSHPLUS_TOKEN,
+                title: "🎓 游戏新留资",
+                content: messageContent,
+                template: "json"
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.code === 200) {
+                console.log("PushPlus 推送成功");
+            } else {
+                console.error("PushPlus 推送失败:", data);
+            }
+        })
+        .catch(err => console.error("PushPlus 请求失败:", err));
         
         // Formspree 推送（保留原功能）
         fetch("https://formspree.io/f/mpqnoakd", {
